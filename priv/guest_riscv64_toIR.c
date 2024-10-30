@@ -1756,11 +1756,7 @@ static Bool dis_RV64M(/*MB_OUT*/ DisResult* dres,
       UInt funct3 = INSN(14, 12);
       UInt rs1    = INSN(19, 15);
       UInt rs2    = INSN(24, 20);
-      if (funct3 == 0b010) {
-         /* Invalid {MUL,DIV,REM}<x>, fall through. */
-      } else if (funct3 == 0b010) {
-         /* MULHSU, not currently handled, fall through. */
-      } else {
+      {
          if (rd != 0) {
             IRExpr* expr;
             switch (funct3) {
@@ -1768,6 +1764,7 @@ static Bool dis_RV64M(/*MB_OUT*/ DisResult* dres,
                expr = binop(Iop_Mul64, getIReg64(rs1), getIReg64(rs2));
                break;
             case 0b001:
+            case 0b010: /* MULHSU, not currently handled, fall through. */
                expr = unop(Iop_128HIto64,
                            binop(Iop_MullS64, getIReg64(rs1), getIReg64(rs2)));
                break;
@@ -1803,6 +1800,9 @@ static Bool dis_RV64M(/*MB_OUT*/ DisResult* dres,
             break;
          case 0b001:
             name = "mulh";
+            break;
+         case 0b010:
+            name = "mulhsu";
             break;
          case 0b011:
             name = "mulhu";
